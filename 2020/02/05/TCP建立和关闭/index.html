@@ -89,7 +89,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;static001.geekbang.org&#x2F;resource&#x2F;image&#x2F;65&#x2F;29&#x2F;65cef2c44480910871a0b66cac1d5529.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;static001.geekbang.org&#x2F;resource&#x2F;image&#x2F;f3&#x2F;e1&#x2F;f34823ce42a49e4eadaf642a75d14de1.png">
 <meta property="article:published_time" content="2020-02-05T07:10:47.000Z">
-<meta property="article:modified_time" content="2020-02-06T12:16:47.355Z">
+<meta property="article:modified_time" content="2020-02-07T07:03:26.278Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;img.blog.csdn.net&#x2F;20170227111849763?watermark&#x2F;2&#x2F;text&#x2F;aHR0cDovL2Jsb2cuY3Nkbi5uZXQvTWFyeTE5OTIwNDEw&#x2F;font&#x2F;5a6L5L2T&#x2F;fontsize&#x2F;400&#x2F;fill&#x2F;I0JBQkFCMA&#x3D;&#x3D;&#x2F;dissolve&#x2F;70&#x2F;gravity&#x2F;Center">
@@ -382,6 +382,12 @@
 <li>内存资源占用，这个目前看来不是太严重，基本可以忽略。</li>
 <li>对端口资源的占用，一个 TCP 连接至少消耗一个本地端口。如果TIME_WAIT 状态过多的话，会导致无法建立新的链接</li>
 </ul>
+<h3 id="net-ipv4-tcp-tw-reuse"><a href="#net-ipv4-tcp-tw-reuse" class="headerlink" title="net.ipv4.tcp_tw_reuse"></a>net.ipv4.tcp_tw_reuse</h3><p>  net.ipv4.tcp_tw_reuse = true 重用TIME_WAIT占用的端口</p>
+<h3 id="SO-LINGER-的设置"><a href="#SO-LINGER-的设置" class="headerlink" title="SO_LINGER 的设置"></a>SO_LINGER 的设置</h3><ul>
+<li>如果l_onoff为 0，那么关闭本选项。l_linger的值被忽略，这对应了默认行为，close 或 shutdown 立即返回。如果在套接字发送缓冲区中有数据残留，系统会将试着把这些数据发送出去。</li>
+<li>如果l_onoff为非 0， 且l_linger值也为 0，那么调用 close 后，会立该发送一个 RST 标志给对端，该 TCP 连接将跳过四次挥手，也就跳过了 TIME_WAIT 状态，直接关闭。这种关闭的方式称为“强行关闭”。 在这种情况下，排队数据不会被发送，被动关闭方也不知道对端已经彻底断开。只有当被动关闭方正阻塞在recv()调用上时，接受到 RST 时，会立刻得到一个“connet reset by peer”的异常。 </li>
+<li>如果l_onoff为非 0， 且l_linger的值也非 0，那么调用 close 后，调用 close 的线程就将阻塞，直到数据被发送出去，或者设置的l_linger计时时间到。</li>
+</ul>
 <h3 id="close-和-shutdown"><a href="#close-和-shutdown" class="headerlink" title="close 和 shutdown"></a>close 和 shutdown</h3><ul>
 <li>close 这个函数会对套接字引用计数减一，套接字可能会被多个进程引用，一旦发现套接字引用计数到 0，就会对套接字进行彻底释放，并且会关闭TCP两个方向的数据流。在输入方向，<strong>系统内核会将该套接字设置为不可读，任何读操作都会返回异常</strong>。在输出方向，<strong>系统内核尝试将发送缓冲区的数据发送给对端，并最后向对端发送一个 FIN 报文，接下来如果再对该套接字进行写操作会返回异常</strong>。如果对端没有检测到套接字已关闭，还继续发送报文，就会收到一个 RST 报文，告诉对端：“Hi, 我已经关闭了，别再给我发数据了。”</li>
 <li>shutdown 函数 会关闭套接字的某个方向，可以由选项指定，关闭那个方向，比较优雅</li>
@@ -537,7 +543,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP"><span class="nav-number">1.</span> <span class="nav-text">TCP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三次握手"><span class="nav-number">1.1.</span> <span class="nav-text">三次握手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#信息对等"><span class="nav-number">1.1.1.</span> <span class="nav-text">信息对等</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四次挥手"><span class="nav-number">1.2.</span> <span class="nav-text">四次挥手</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TIME-WAIT作用"><span class="nav-number">1.3.</span> <span class="nav-text">TIME_WAIT作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TIME-WAIT副作用"><span class="nav-number">1.4.</span> <span class="nav-text">TIME_WAIT副作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#close-和-shutdown"><span class="nav-number">1.5.</span> <span class="nav-text">close 和 shutdown</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#close-和-指定SHUT-RDWR选项调用shutdown函数-差别"><span class="nav-number">1.6.</span> <span class="nav-text">close 和 指定SHUT_RDWR选项调用shutdown函数 差别</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP"><span class="nav-number">1.</span> <span class="nav-text">TCP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三次握手"><span class="nav-number">1.1.</span> <span class="nav-text">三次握手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#信息对等"><span class="nav-number">1.1.1.</span> <span class="nav-text">信息对等</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四次挥手"><span class="nav-number">1.2.</span> <span class="nav-text">四次挥手</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TIME-WAIT作用"><span class="nav-number">1.3.</span> <span class="nav-text">TIME_WAIT作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TIME-WAIT副作用"><span class="nav-number">1.4.</span> <span class="nav-text">TIME_WAIT副作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#net-ipv4-tcp-tw-reuse"><span class="nav-number">1.5.</span> <span class="nav-text">net.ipv4.tcp_tw_reuse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SO-LINGER-的设置"><span class="nav-number">1.6.</span> <span class="nav-text">SO_LINGER 的设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#close-和-shutdown"><span class="nav-number">1.7.</span> <span class="nav-text">close 和 shutdown</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#close-和-指定SHUT-RDWR选项调用shutdown函数-差别"><span class="nav-number">1.8.</span> <span class="nav-text">close 和 指定SHUT_RDWR选项调用shutdown函数 差别</span></a></li></ol></li></ol></div>
             
 
           </div>

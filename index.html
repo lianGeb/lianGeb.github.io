@@ -228,6 +228,132 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/14/batchRemove/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/05/14/batchRemove/" itemprop="url">批量删除引起的一些思考</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-14T22:54:36+08:00">
+                2020-05-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="从删除数组元素开始"><a href="#从删除数组元素开始" class="headerlink" title="从删除数组元素开始"></a>从删除数组元素开始</h2><p>数组 a[10]中存储了 8 个元素：a，b，c，d，e，f，g，h。现在要删除 a 这个元素的，一般操作是把后面往前挪一个位置，可以用System.copy做到一次性移动拷贝，然后把最后一个置为null，让gc进行回收，最后size属性减一。</p>
+<p>现在要批量删除a, b, c三个元素， 最自然的想法是， 循环三次，依次删除一个元素。但这样，会做三次System.copy操作，这样效率不是很高。 可不可只用一次System.copy， 就做到呢？ 答案是可以的。</p>
+<p>遍历数组，查看当前元素，是否在待删除元素的集合中，如果不在, 将当前元素赋给a[w], w=w+1, 直到遍历所有元素。这样操作后，保留前w个元素，将数组后面10-w个依次置为null, 让GC进行回收。size属性设w。批量删除操作完成。</p>
+<h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><ol>
+<li>批量删除元素 类似于 jvm 的标记清楚算法，并不是一开始就删除元素， 而是先进行一定标记，然后在统一的进行删除，这样会显得有效率。</li>
+<li>其实cassandra 输出数据是，也不是立即删除的，而是插入一个标记，俗称墓碑， 一定时间后， 会有个线程，统一清除所有墓碑， 并不只有cassandra会这么操作，很多LSM 数据库，都是删除数据的。</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/05/TCP%E5%BB%BA%E7%AB%8B%E5%92%8C%E5%85%B3%E9%97%AD/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -607,7 +733,7 @@
               
                 <a href="/archives/%20%7C%7C%20archive">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

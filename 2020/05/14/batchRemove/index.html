@@ -79,14 +79,14 @@
 
 
 
-<meta name="description" content="从删除数组元素开始数组 a[10]中存储了 8 个元素：a，b，c，d，e，f，g，h。现在要删除 a 这个元素的，一般操作是把后面往前挪一个位置，可以用System.copy做到一次性移动拷贝，然后把最后一个置为null，让gc进行回收，最后size属性减一。 现在要批量删除a, b, c三个元素， 最自然的想法是， 循环三次，依次删除一个元素。但这样，会做三次System.copy操作，这样效">
+<meta name="description" content="从删除数组元素开始数组 a[10]中存储了 8 个元素：a，b，c，d，e，f，g，h。现在要删除 a 这个元素的，一般操作是把后面往前挪一个位置，可以用System.copy做到一次性移动拷贝，然后把最后一个置为null，让gc进行回收，最后size属性减一。 现在要批量删除a, b, c三个元素, 最自然的想法是,循环三次,依次删除一个元素。但这样,会做三次System.copy操作，这样效率">
 <meta property="og:type" content="article">
 <meta property="og:title" content="批量删除引起的一些思考">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;05&#x2F;14&#x2F;batchRemove&#x2F;index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="从删除数组元素开始数组 a[10]中存储了 8 个元素：a，b，c，d，e，f，g，h。现在要删除 a 这个元素的，一般操作是把后面往前挪一个位置，可以用System.copy做到一次性移动拷贝，然后把最后一个置为null，让gc进行回收，最后size属性减一。 现在要批量删除a, b, c三个元素， 最自然的想法是， 循环三次，依次删除一个元素。但这样，会做三次System.copy操作，这样效">
+<meta property="og:description" content="从删除数组元素开始数组 a[10]中存储了 8 个元素：a，b，c，d，e，f，g，h。现在要删除 a 这个元素的，一般操作是把后面往前挪一个位置，可以用System.copy做到一次性移动拷贝，然后把最后一个置为null，让gc进行回收，最后size属性减一。 现在要批量删除a, b, c三个元素, 最自然的想法是,循环三次,依次删除一个元素。但这样,会做三次System.copy操作，这样效率">
 <meta property="article:published_time" content="2020-05-14T14:54:36.545Z">
-<meta property="article:modified_time" content="2020-05-14T16:04:46.346Z">
+<meta property="article:modified_time" content="2020-05-14T16:07:49.428Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 
@@ -299,11 +299,11 @@
 
       
         <h2 id="从删除数组元素开始"><a href="#从删除数组元素开始" class="headerlink" title="从删除数组元素开始"></a>从删除数组元素开始</h2><p>数组 a[10]中存储了 8 个元素：a，b，c，d，e，f，g，h。现在要删除 a 这个元素的，一般操作是把后面往前挪一个位置，可以用System.copy做到一次性移动拷贝，然后把最后一个置为null，让gc进行回收，最后size属性减一。</p>
-<p>现在要批量删除a, b, c三个元素， 最自然的想法是， 循环三次，依次删除一个元素。但这样，会做三次System.copy操作，这样效率不是很高。 可不可只用一次System.copy， 就做到呢？ 答案是可以的。</p>
+<p>现在要批量删除a, b, c三个元素, 最自然的想法是,循环三次,依次删除一个元素。但这样,会做三次System.copy操作，这样效率不是很高。 可不可只用一次System.copy，就做到呢？ 答案是可以的。</p>
 <p>遍历数组，查看当前元素，是否在待删除元素的集合中，如果不在, 将当前元素赋给a[w], w=w+1, 直到遍历所有元素。这样操作后，保留前w个元素，将数组后面10-w个依次置为null, 让GC进行回收。size属性设w。批量删除操作完成。</p>
 <h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><ol>
 <li>批量删除元素 类似于 jvm 的标记清楚算法，并不是一开始就删除元素， 而是先进行一定标记，然后在统一的进行删除，这样会显得有效率。</li>
-<li>其实cassandra 输出数据是，也不是立即删除的，而是插入一个标记，俗称墓碑， 一定时间后， 会有个线程，统一清除所有墓碑， 并不只有cassandra会这么操作，很多LSM 数据库，都是删除数据的。</li>
+<li>其实cassandra 输出数据是，也不是立即删除的，而是插入一个标记，俗称墓碑， 一定时间后， 会有个线程，统一清除所有墓碑， 并不只有cassandra会这么操作，很多LSM 数据库，都是这样删除数据的。</li>
 </ol>
 
       
